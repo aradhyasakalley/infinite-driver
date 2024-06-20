@@ -6,4 +6,12 @@ public class Retry : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(2);
     }
+    public void backToMainMenu()
+    {
+        SceneManager.LoadSceneAsync(0);
+    }
+    public void changeVehicle()
+    {
+        SceneManager.LoadSceneAsync(1);
+    }
 }

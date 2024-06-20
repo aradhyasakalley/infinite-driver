@@ -1,23 +1,20 @@
 using UnityEngine;
-
-public class GameManager : MonoBehaviour
+ class GameManager : MonoBehaviour
 {
-    public GameObject carPrefab;
-    public GameObject tankPrefab;
+    public static GameManager instance;
+
+    public GameObject vehicleObject;
+
+    public Transform parent;
 
     void Start()
     {
-        bool useCar = true; 
+        instance = this;
+        // Change the vehicle type to Bus when the game starts
 
-        if (useCar)
-        {
-            carPrefab.SetActive(true);
-            tankPrefab.SetActive(false);
-        }
-        else
-        {
-            carPrefab.SetActive(false);
-            tankPrefab.SetActive(true);
-        }
+        Instantiate(vehicleObject, Vector3.zero, Quaternion.identity, parent);
     }
 }
+
+
+
