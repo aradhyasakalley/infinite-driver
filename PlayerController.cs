@@ -19,21 +19,31 @@ public class PlayerController : MonoBehaviour
     public float collisionForce = 1000.0f;
     public float upwardsForce = 500.0f;
 
-    // Reference to the VehicleController script attached to the vehicle
+    // Reference to the ChangeMesh script attached to the vehicle
     private ChangeMesh vehicleController;
+
+    // Threshold for falling off the road
+    public float fallThreshold = -10.0f;
 
     void Start()
     {
-        // Get the VehicleController component attached to the vehicle
+        // Get the ChangeMesh component attached to the vehicle
         vehicleController = GetComponent<ChangeMesh>();
         if (vehicleController == null)
         {
-            Debug.LogError("VehicleController script not found on the player's vehicle GameObject!");
+            Debug.LogError("ChangeMesh script not found on the player's vehicle GameObject!");
         }
     }
 
     void Update()
     {
+        // Check if the vehicle has fallen off the road
+        if (transform.position.y < fallThreshold)
+        {
+            Debug.Log("fallen off");
+            SceneManager.LoadSceneAsync(3);
+        }
+
         // Get input from the player
         forwardInput = Input.GetAxis("Vertical");
         horizontalInput = Input.GetAxis("Horizontal");
@@ -129,7 +139,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("VehicleController script not found on the player's vehicle GameObject!");
+            Debug.LogError("ChangeMesh script not found on the player's vehicle GameObject!");
         }
     }
 }
