@@ -10,8 +10,6 @@ using UnityEngine;
     void Start()
     {
         instance = this;
-        // Change the vehicle type to Bus when the game starts
-
         Instantiate(vehicleObject, Vector3.zero, Quaternion.identity, parent);
     }
 }

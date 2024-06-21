@@ -5,7 +5,7 @@ public class RoadManager : MonoBehaviour
 {
     public GameObject roadPrefab;
     public GameObject obstaclePrefab;
-    public GameObject barrelPrefab; // Reference to the barrel prefab
+    public GameObject barrelPrefab; 
     public int numberOfSegments = 5;
     public float segmentLength = 20.0f;
     public Transform player;
@@ -14,14 +14,16 @@ public class RoadManager : MonoBehaviour
     private float spawnZ = 0.0f;
     private float safeZone = 30.0f;
 
-    private float obstacleMinDistance = 2.0f;
+    private float obstacleMinDistance;
     private float lastObstacleZ = -1.0f;
 
-    private float[] obstacleXPositions = { -10.0f, 0.0f, 10.0f }; // X positions for obstacles
-    private float[] barrelXPositions = { -6.0f, 0.0f, 6.0f }; // X positions for barrels
+    private float[] obstacleXPositions = { -10.0f, 0.0f, 10.0f }; 
+    private float[] barrelXPositions = { -6.0f, 0.0f, 6.0f }; 
 
     void Start()
     {
+        SetDifficultyParameters();
+
         for (int i = 0; i < numberOfSegments; i++)
         {
             SpawnRoadSegment();
@@ -38,6 +40,28 @@ public class RoadManager : MonoBehaviour
 
         // Check for obstacle spawning
         SpawnObstacles();
+    }
+
+    void SetDifficultyParameters()
+    {
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Medium"); 
+
+        switch (difficulty)
+        {
+            case "Easy":
+                obstacleMinDistance = 30.0f; 
+                break;
+            case "Medium":
+                obstacleMinDistance = 20.0f; 
+                break;
+            case "Hard":
+                obstacleMinDistance = 10.0f; 
+                break;
+            default:
+                Debug.LogError("Unknown difficulty setting.");
+                obstacleMinDistance = 20.0f; // Default distance
+                break;
+        }
     }
 
     void SpawnRoadSegment()

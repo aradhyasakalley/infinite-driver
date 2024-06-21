@@ -4,18 +4,15 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    private float maxSpeed = 40.0f;
-    private float acceleration = 10.0f;
-    private float deceleration = 10.0f;
+    private float maxSpeed;
+    private float acceleration;
+    private float deceleration;
     private float turnSpeed = 45.0f;
     private float currentSpeed = 0.0f;
     private float horizontalInput;
     private float forwardInput;
     public GameObject explosionEffect;
     public float explosionDuration = 1.0f;
-    public float difficultyIncreaseRate = 0.1f;
-    public float maxSpeedIncreaseRate = 0.5f;
-    public float accelerationIncreaseRate = 0.2f;
     public float collisionForce = 1000.0f;
     public float upwardsForce = 500.0f;
 
@@ -33,6 +30,44 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("ChangeMesh script not found on the player's vehicle GameObject!");
         }
+
+        // Set vehicle parameters based on selected difficulty
+        SetDifficultyParameters();
+    }
+
+    void SetDifficultyParameters()
+    {
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Medium");
+
+        Debug.Log("Selected Difficulty: " + difficulty); 
+
+        switch (difficulty)
+        {
+            case "Easy":
+                maxSpeed = 20.0f;
+                turnSpeed = 45.0f;
+                acceleration = 4.0f;
+                deceleration = 10.0f;
+                break;
+            case "Medium":
+                maxSpeed = 40.0f;
+                turnSpeed = 35.0f;
+                acceleration = 4.0f; 
+                deceleration = 10.0f; 
+                break;
+            case "Hard":
+                maxSpeed = 60.0f;
+                turnSpeed = 25.0f;
+                acceleration = 6.0f;
+                deceleration = 8.0f; 
+                break;
+            default:
+                Debug.LogError("Unknown difficulty setting.");
+                break;
+        }
+
+        // Debug statements to check the applied parameters
+        
     }
 
     void Update()
@@ -41,16 +76,12 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < fallThreshold)
         {
             Debug.Log("fallen off");
-            SceneManager.LoadSceneAsync(3);
+            SceneManager.LoadSceneAsync(4);
         }
 
         // Get input from the player
         forwardInput = Input.GetAxis("Vertical");
         horizontalInput = Input.GetAxis("Horizontal");
-
-        // Increase max speed and acceleration over time
-        maxSpeed += maxSpeedIncreaseRate * Time.deltaTime * difficultyIncreaseRate;
-        acceleration += accelerationIncreaseRate * Time.deltaTime * difficultyIncreaseRate;
 
         // Accelerate or decelerate based on player input
         if (forwardInput > 0)
@@ -93,6 +124,12 @@ public class PlayerController : MonoBehaviour
 
         // Move the vehicle forward based on its current speed
         transform.Translate(Vector3.forward * Time.deltaTime * currentSpeed);
+
+        Debug.Log("Max Speed: " + maxSpeed);
+        Debug.Log("Current Speed: " + currentSpeed);
+        Debug.Log("Turning Speed: " + turnSpeed);
+        Debug.Log("Acceleration: " + acceleration);
+        Debug.Log("Deceleration: " + deceleration);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -127,7 +164,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(waitTime);
 
         // Load the game over scene
-        SceneManager.LoadSceneAsync(3);
+        SceneManager.LoadSceneAsync(4);
     }
 
     // Method to change the vehicle type
