@@ -5,7 +5,8 @@ public class RoadManager : MonoBehaviour
 {
     public GameObject roadPrefab;
     public GameObject obstaclePrefab;
-    public GameObject barrelPrefab; 
+    public GameObject barrelPrefab;
+    public GameObject coinPrefab;
     public int numberOfSegments = 5;
     public float segmentLength = 20.0f;
     public Transform player;
@@ -49,10 +50,10 @@ public class RoadManager : MonoBehaviour
         switch (difficulty)
         {
             case "Easy":
-                obstacleMinDistance = 30.0f; 
+                obstacleMinDistance = 10.0f; 
                 break;
             case "Medium":
-                obstacleMinDistance = 20.0f; 
+                obstacleMinDistance = 10.0f; 
                 break;
             case "Hard":
                 obstacleMinDistance = 10.0f; 
@@ -88,20 +89,33 @@ public class RoadManager : MonoBehaviour
 
         GameObject spawnPrefab;
         float spawnX;
-        if (Random.value > 0.5f)
+        float spawnChance = Random.value;
+
+        if (spawnChance < 0.4f)
         {
-            // Spawn an obstacle
+            // Spawn a coin with rotation Quaternion.Euler(0, 90, 0) and position up on the y-axis
+            spawnPrefab = coinPrefab;
+            spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+            Instantiate(spawnPrefab, new Vector3(spawnX, 1.0f, obstacleZ), Quaternion.Euler(0, 0, 90));
+        }
+        else if (spawnChance < 0.7f)
+        {
+            // Spawn an obstacle with rotation Quaternion.Euler(0, 180, 0) and default y-axis position
             spawnPrefab = obstaclePrefab;
             spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+            Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
         }
         else
         {
-            // Spawn a barrel
+            // Spawn a barrel with rotation Quaternion.Euler(0, 180, 0) and default y-axis position
             spawnPrefab = barrelPrefab;
             spawnX = barrelXPositions[Random.Range(0, barrelXPositions.Length)];
+            Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
         }
 
-        GameObject spawnedObject = Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
         lastObstacleZ = obstacleZ;
     }
+
+
+
 }
