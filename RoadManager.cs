@@ -53,10 +53,10 @@ public class RoadManager : MonoBehaviour
                 obstacleMinDistance = 10.0f; 
                 break;
             case "Medium":
-                obstacleMinDistance = 10.0f; 
+                obstacleMinDistance = 7.0f; 
                 break;
             case "Hard":
-                obstacleMinDistance = 10.0f; 
+                obstacleMinDistance = 5.0f; 
                 break;
             default:
                 Debug.LogError("Unknown difficulty setting.");

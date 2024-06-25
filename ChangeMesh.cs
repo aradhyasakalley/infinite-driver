@@ -11,6 +11,12 @@ public class ChangeMesh : MonoBehaviour
     public Mesh carMesh;
     public Mesh vanMesh;
 
+    // Vehicle properties
+    public float maxSpeed;
+    public float acceleration;
+    public float deceleration; 
+    public float turnSpeed;
+
     public enum VehicleType
     {
         Bus,
@@ -26,21 +32,25 @@ public class ChangeMesh : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
 
         // Retrieve the selected vehicle type from PlayerPrefs
-        string selectedVehicle = PlayerPrefs.GetString("SelectedVehicle", "Car"); 
+        string selectedVehicle = PlayerPrefs.GetString("SelectedVehicle", "Car");
 
         switch (selectedVehicle)
         {
             case "Car":
                 vehicleType = VehicleType.Car;
+                SetCarProperties();
                 break;
             case "Bus":
                 vehicleType = VehicleType.Bus;
+                SetBusProperties();
                 break;
             case "Tank":
                 vehicleType = VehicleType.Tank;
+                SetTankProperties();
                 break;
             case "Van":
                 vehicleType = VehicleType.Van;
+                SetVanProperties();
                 break;
             default:
                 Debug.LogError("Unknown vehicle type selected: " + selectedVehicle);
@@ -77,5 +87,58 @@ public class ChangeMesh : MonoBehaviour
     {
         vehicleType = newVehicleType;
         SetVehicleMesh();
+
+        // Update properties when vehicle type changes
+        switch (vehicleType)
+        {
+            case VehicleType.Bus:
+                SetBusProperties();
+                break;
+            case VehicleType.Tank:
+                SetTankProperties();
+                break;
+            case VehicleType.Car:
+                SetCarProperties();
+                break;
+            case VehicleType.Van:
+                SetVanProperties();
+                break;
+            default:
+                Debug.LogError("Unknown vehicle type.");
+                break;
+        }
+    }
+
+    // Define properties for each vehicle type
+    private void SetCarProperties()
+    {
+        maxSpeed = 60f;
+        acceleration = 5f;
+        deceleration = 10f; 
+        turnSpeed = 45f;
+    }
+
+    private void SetBusProperties()
+    {
+        maxSpeed = 70f;
+        acceleration = 3f;
+        deceleration = 10f;
+        turnSpeed = 25f;
+    }
+
+    private void SetTankProperties()
+    {
+        maxSpeed = 40f;
+        acceleration = 5f;
+        deceleration = 10f;
+        turnSpeed = 35f;
+    }
+
+    private void SetVanProperties()
+    {
+        maxSpeed = 60f;
+        acceleration = 3f;
+        deceleration = 10f;
+        turnSpeed = 35f;
     }
 }
