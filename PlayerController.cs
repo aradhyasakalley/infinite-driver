@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     private ChangeMesh vehicleController;
 
     // Vehicle properties (adjusted based on difficulty)
-    private float maxSpeedModifier = 1.0f;
+    public float maxSpeedModifier = 1.0f;
     private float accelerationModifier = 1.0f;
     private float turnSpeedModifier = 1.0f;
     private float decelerationModifier = 1.0f;
@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     // Reference to the TMP text elements in the UI
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI highScoreText;
+    public TextMeshProUGUI speedText;
 
     void Start()
     {
@@ -68,8 +69,8 @@ public class PlayerController : MonoBehaviour
                 decelerationModifier = 1.0f;
                 break;
             case "Hard":
-                accelerationModifier = 2.6f;
-                maxSpeedModifier = 2.4f;
+                accelerationModifier = 1.8f;
+                maxSpeedModifier = 1.4f;
                 turnSpeedModifier = 0.3f;
                 decelerationModifier = 1.0f;
                 break;
@@ -133,8 +134,10 @@ public class PlayerController : MonoBehaviour
 
         // Move the vehicle forward based on its current speed
         transform.Translate(Vector3.forward * Time.deltaTime * currentSpeed);
-    }
 
+        // Update UI text elements
+        UpdateSpeedText();
+    }
     void OnCollisionEnter(Collision collision)
     {
         // Check if the collision is with an object tagged as "Obstacle"
@@ -220,6 +223,20 @@ public class PlayerController : MonoBehaviour
             highScoreText.text = "High Score: " + HighScoreManager.GetHighScore().ToString();
         }
     }
+
+    void UpdateSpeedText()
+    {
+        if (speedText != null)
+        {
+            speedText.text = "Speed: " + Mathf.Round(currentSpeed).ToString() + " m/s"; // Example format, adjust as needed
+        }
+        else
+        {
+            Debug.LogError("Speed Text component not assigned in the Inspector!");
+        }
+    }
+
+    
 
     void OnDestroy()
     {

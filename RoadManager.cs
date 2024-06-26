@@ -18,12 +18,26 @@ public class RoadManager : MonoBehaviour
     private float obstacleMinDistance;
     private float lastObstacleZ = -1.0f;
 
-    private float[] obstacleXPositions = { -10.0f, 0.0f, 10.0f }; 
-    private float[] barrelXPositions = { -6.0f, 0.0f, 6.0f }; 
+    private float[] obstacleXPositions = { -10.0f, 0.0f, 10.0f };
+    private float[] barrelXPositions = { -6.0f, 0.0f, 6.0f };
+
+    private ChangeMesh.VehicleType currentVehicleType;
 
     void Start()
     {
+        // Initialize parameters and spawn initial road segments
         SetDifficultyParameters();
+
+        // Get the current vehicle type from the player's vehicle
+        ChangeMesh vehicleController = player.GetComponentInChildren<ChangeMesh>();
+        if (vehicleController != null)
+        {
+            currentVehicleType = vehicleController.vehicleType;
+        }
+        else
+        {
+            Debug.LogError("ChangeMesh script not found on the player's vehicle GameObject!");
+        }
 
         for (int i = 0; i < numberOfSegments; i++)
         {
@@ -33,6 +47,7 @@ public class RoadManager : MonoBehaviour
 
     void Update()
     {
+        // Check if more road segments need to be spawned
         if (player.position.z - safeZone > (spawnZ - numberOfSegments * segmentLength))
         {
             SpawnRoadSegment();
@@ -45,18 +60,18 @@ public class RoadManager : MonoBehaviour
 
     void SetDifficultyParameters()
     {
-        string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Medium"); 
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty", "Medium");
 
         switch (difficulty)
         {
             case "Easy":
-                obstacleMinDistance = 10.0f; 
+                obstacleMinDistance = 50.0f;
                 break;
             case "Medium":
-                obstacleMinDistance = 7.0f; 
+                obstacleMinDistance = 30.0f;
                 break;
             case "Hard":
-                obstacleMinDistance = 5.0f; 
+                obstacleMinDistance = 10.0f;
                 break;
             default:
                 Debug.LogError("Unknown difficulty setting.");
@@ -67,6 +82,7 @@ public class RoadManager : MonoBehaviour
 
     void SpawnRoadSegment()
     {
+        // Instantiate a road segment and add it to the list
         GameObject roadSegment = Instantiate(roadPrefab, Vector3.forward * spawnZ, Quaternion.Euler(0, 90, 0));
         roadSegments.Add(roadSegment);
         spawnZ += segmentLength;
@@ -74,6 +90,7 @@ public class RoadManager : MonoBehaviour
 
     void DeleteOldSegment()
     {
+        // Delete the oldest road segment when it's no longer visible
         Destroy(roadSegments[0]);
         roadSegments.RemoveAt(0);
     }
@@ -91,31 +108,48 @@ public class RoadManager : MonoBehaviour
         float spawnX;
         float spawnChance = Random.value;
 
-        if (spawnChance < 0.4f)
+        // Adjust obstacle distance based on vehicle type
+        float obstacleDistanceModifier = 1.0f;
+        switch (currentVehicleType)
         {
-            // Spawn a coin with rotation Quaternion.Euler(0, 90, 0) and position up on the y-axis
-            spawnPrefab = coinPrefab;
-            spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-            Instantiate(spawnPrefab, new Vector3(spawnX, 1.0f, obstacleZ), Quaternion.Euler(0, 0, 90));
-        }
-        else if (spawnChance < 0.7f)
-        {
-            // Spawn an obstacle with rotation Quaternion.Euler(0, 180, 0) and default y-axis position
-            spawnPrefab = obstaclePrefab;
-            spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-            Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
-        }
-        else
-        {
-            // Spawn a barrel with rotation Quaternion.Euler(0, 180, 0) and default y-axis position
-            spawnPrefab = barrelPrefab;
-            spawnX = barrelXPositions[Random.Range(0, barrelXPositions.Length)];
-            Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
+            case ChangeMesh.VehicleType.Bus:
+                obstacleDistanceModifier = 3.0f;
+                break;
+            case ChangeMesh.VehicleType.Tank:
+                obstacleDistanceModifier = 2.0f;
+                break;
+            case ChangeMesh.VehicleType.Van:
+                obstacleDistanceModifier = 1.5f;
+                break;
         }
 
-        lastObstacleZ = obstacleZ;
+        float adjustedObstacleMinDistance = obstacleMinDistance * obstacleDistanceModifier;
+
+        if (obstacleZ - lastObstacleZ >= adjustedObstacleMinDistance)
+        {
+            if (spawnChance < 0.6f)
+            {
+                // Spawn a coin (increased chance compared to obstacles and barrels)
+                spawnPrefab = coinPrefab;
+                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 1.0f, obstacleZ), Quaternion.Euler(0, 0, 90));
+            }
+            else if (spawnChance < 0.8f)
+            {
+                // Spawn an obstacle
+                spawnPrefab = obstaclePrefab;
+                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
+            }
+            else
+            {
+                // Spawn a barrel
+                spawnPrefab = barrelPrefab;
+                spawnX = barrelXPositions[Random.Range(0, barrelXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
+            }
+
+            lastObstacleZ = obstacleZ;
+        }
     }
-
-
-
 }
