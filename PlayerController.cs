@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
+using UnityEngine.UI;  // Required for accessing UI components like RawImage
+using System.Collections.Generic;  // Required for HashSet
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,7 +25,7 @@ public class PlayerController : MonoBehaviour
     public float collisionForce = 1000.0f;
     public float upwardsForce = 500.0f;
     public int score = 0;
-
+    public int lifes = 3;
     // Threshold for falling off the road
     public float fallThreshold = -10.0f;
 
@@ -31,6 +33,14 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI highScoreText;
     public TextMeshProUGUI speedText;
+
+    // Reference to RawImages for lives display
+    public RawImage life3;
+    public RawImage life2;
+    public RawImage life1;
+
+    // HashSet to track collided obstacles
+    private HashSet<Collider> collidedObstacles = new HashSet<Collider>();
 
     void Start()
     {
@@ -47,6 +57,9 @@ public class PlayerController : MonoBehaviour
         // Update initial score and high score text
         UpdateScoreText();
         UpdateHighScoreText();
+
+        // Initially set the visibility based on starting lifes count
+        UpdateLifeUI();
     }
 
     void SetDifficultyModifiers()
@@ -138,19 +151,31 @@ public class PlayerController : MonoBehaviour
         // Update UI text elements
         UpdateSpeedText();
     }
+
     void OnCollisionEnter(Collision collision)
     {
         // Check if the collision is with an object tagged as "Obstacle"
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            // Instantiate explosion effect
-            Instantiate(explosionEffect, collision.contacts[0].point, Quaternion.identity);
+            // Check if this obstacle has already been collided with
+            if (!collidedObstacles.Contains(collision.collider))
+            {
+                score = score - 5;
+                collidedObstacles.Add(collision.collider);
+                lifes--;
+                Debug.Log("Lifes remaining: " + lifes);
+                if (lifes == 0)
+                {
+                    currentSpeed = 0;
+                    StartCoroutine(WaitAndLoadScene(explosionDuration));
+                }
 
-            // Stop the vehicle
-            currentSpeed = 0;
+                // Update UI for lives display
+                UpdateLifeUI();
 
-            // Wait for a duration and load the game over scene
-            StartCoroutine(WaitAndLoadScene(explosionDuration));
+                // Instantiate explosion effect
+                Instantiate(explosionEffect, collision.contacts[0].point, Quaternion.identity);
+            }
         }
         else if (collision.gameObject.CompareTag("Coin"))
         {
@@ -159,7 +184,29 @@ public class PlayerController : MonoBehaviour
 
             // Increment score
             score++;
-            Debug.Log("Score: " + score);
+
+            // Update score text
+            UpdateScoreText();
+        }
+
+        else if (collision.gameObject.CompareTag("Star"))
+        {
+            // Destroy the coin prefab
+            Destroy(collision.gameObject);
+
+            // Increment score
+            score += 5;
+
+            // Update score text
+            UpdateScoreText();
+        }
+        else if (collision.gameObject.CompareTag("Diamond"))
+        {
+            // Destroy the coin prefab
+            Destroy(collision.gameObject);
+
+            // Increment score
+            score = score*2;
 
             // Update score text
             UpdateScoreText();
@@ -236,7 +283,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
+    // Method to update the visibility of life UI elements
+    void UpdateLifeUI()
+    {
+        if (life3 != null)
+        {
+            life3.gameObject.SetActive(lifes >= 3);
+        }
+        if (life2 != null)
+        {
+            life2.gameObject.SetActive(lifes >= 2);
+        }
+        if (life1 != null)
+        {
+            life1.gameObject.SetActive(lifes >= 1);
+        }
+    }
 
     void OnDestroy()
     {

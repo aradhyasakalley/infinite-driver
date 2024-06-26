@@ -7,6 +7,8 @@ public class RoadManager : MonoBehaviour
     public GameObject obstaclePrefab;
     public GameObject barrelPrefab;
     public GameObject coinPrefab;
+    public GameObject starPrefab;
+    public GameObject diamondfPrefab;
     public int numberOfSegments = 5;
     public float segmentLength = 20.0f;
     public Transform player;
@@ -134,12 +136,24 @@ public class RoadManager : MonoBehaviour
                 spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
                 Instantiate(spawnPrefab, new Vector3(spawnX, 1.0f, obstacleZ), Quaternion.Euler(0, 0, 90));
             }
+            else if ( spawnChance < 0.7 )
+            {
+                spawnPrefab = starPrefab;
+                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 2.0f, obstacleZ), Quaternion.Euler(0, 90, 90));
+            }
             else if (spawnChance < 0.8f)
             {
                 // Spawn an obstacle
                 spawnPrefab = obstaclePrefab;
                 spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
                 Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
+            }
+            else if (spawnChance < 0.9)
+            {
+                spawnPrefab = diamondfPrefab;
+                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
             }
             else
             {
