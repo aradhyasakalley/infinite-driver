@@ -8,7 +8,7 @@ public class RoadManager : MonoBehaviour
     public GameObject barrelPrefab;
     public GameObject coinPrefab;
     public GameObject starPrefab;
-    public GameObject diamondfPrefab;
+    public GameObject magnetPrefab;
     public int numberOfSegments = 5;
     public float segmentLength = 20.0f;
     public Transform player;
@@ -106,8 +106,6 @@ public class RoadManager : MonoBehaviour
             return;
         }
 
-        GameObject spawnPrefab;
-        float spawnX;
         float spawnChance = Random.value;
 
         // Adjust obstacle distance based on vehicle type
@@ -131,39 +129,54 @@ public class RoadManager : MonoBehaviour
         {
             if (spawnChance < 0.6f)
             {
-                // Spawn a coin (increased chance compared to obstacles and barrels)
-                spawnPrefab = coinPrefab;
-                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-                Instantiate(spawnPrefab, new Vector3(spawnX, 1.0f, obstacleZ), Quaternion.Euler(0, 0, 90));
+                // Spawn a line of coins
+                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                SpawnCoinLine(spawnX, obstacleZ);
             }
-            else if ( spawnChance < 0.7 )
+            else if (spawnChance < 0.7f)
             {
-                spawnPrefab = starPrefab;
-                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                // Spawn a star
+                GameObject spawnPrefab = starPrefab;
+                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
                 Instantiate(spawnPrefab, new Vector3(spawnX, 2.0f, obstacleZ), Quaternion.Euler(0, 90, 90));
             }
             else if (spawnChance < 0.8f)
             {
                 // Spawn an obstacle
-                spawnPrefab = obstaclePrefab;
-                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                GameObject spawnPrefab = obstaclePrefab;
+                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
                 Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
             }
-            else if (spawnChance < 0.9)
+            else if (spawnChance < 0.9f)
             {
-                spawnPrefab = diamondfPrefab;
-                spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-                Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
+                // Spawn a magnet
+                GameObject spawnPrefab = magnetPrefab;
+                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                Instantiate(spawnPrefab, new Vector3(spawnX, 1.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
             }
-            else
-            {
-                // Spawn a barrel
-                spawnPrefab = barrelPrefab;
-                spawnX = barrelXPositions[Random.Range(0, barrelXPositions.Length)];
-                Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
-            }
+            
 
             lastObstacleZ = obstacleZ;
         }
     }
+
+    void SpawnCoinLine(float startX, float startZ)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 spawnPosition = new Vector3(startX, 1.0f, startZ + i * 3.0f);
+            Instantiate(coinPrefab, spawnPosition, Quaternion.Euler(0, 0, 90));
+        }
+    }
+
+
+    /*void SpawnCoinLine(float startX, float startZ)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 spawnPosition = new Vector3(startX, 1.0f, startZ + i * 1.0f);
+            Instantiate(coinPrefab, spawnPosition, Quaternion.identity);
+        }
+    }*/
+
 }

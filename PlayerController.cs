@@ -34,17 +34,16 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI highScoreText;
     public TextMeshProUGUI speedText;
 
-    // Reference to RawImages for lives display
     public RawImage life3;
     public RawImage life2;
     public RawImage life1;
 
-    // HashSet to track collided obstacles
     private HashSet<Collider> collidedObstacles = new HashSet<Collider>();
+
+    public float magnetDuration = 0.0f;
 
     void Start()
     {
-        // Get the ChangeMesh component attached to the vehicle
         vehicleController = GetComponent<ChangeMesh>();
         if (vehicleController == null)
         {
@@ -150,8 +149,24 @@ public class PlayerController : MonoBehaviour
 
         // Update UI text elements
         UpdateSpeedText();
+
     }
 
+    //void OnTrigger
+    private void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            // Destroy the coin prefab
+            Destroy(collision.gameObject);
+            //Debug.Log("Coin hit");
+            // Increment score
+            score++;
+
+            // Update score text
+            UpdateScoreText();
+        }
+    }
     void OnCollisionEnter(Collision collision)
     {
         // Check if the collision is with an object tagged as "Obstacle"
@@ -163,7 +178,7 @@ public class PlayerController : MonoBehaviour
                 score = score - 5;
                 collidedObstacles.Add(collision.collider);
                 lifes--;
-                Debug.Log("Lifes remaining: " + lifes);
+                //Debug.Log("Lifes remaining: " + lifes);
                 if (lifes == 0)
                 {
                     currentSpeed = 0;
@@ -177,19 +192,9 @@ public class PlayerController : MonoBehaviour
                 Instantiate(explosionEffect, collision.contacts[0].point, Quaternion.identity);
             }
         }
-        else if (collision.gameObject.CompareTag("Coin"))
-        {
-            // Destroy the coin prefab
-            Destroy(collision.gameObject);
 
-            // Increment score
-            score++;
 
-            // Update score text
-            UpdateScoreText();
-        }
-
-        else if (collision.gameObject.CompareTag("Star"))
+        if (collision.gameObject.CompareTag("Star"))
         {
             // Destroy the coin prefab
             Destroy(collision.gameObject);
@@ -200,16 +205,28 @@ public class PlayerController : MonoBehaviour
             // Update score text
             UpdateScoreText();
         }
-        else if (collision.gameObject.CompareTag("Diamond"))
+        /*else if (collision.gameObject.CompareTag("Diamond"))
         {
             // Destroy the coin prefab
             Destroy(collision.gameObject);
 
             // Increment score
-            score = score*2;
+            score = score * 2;
 
             // Update score text
             UpdateScoreText();
+        }*/
+        if (collision.gameObject.CompareTag("Magnet"))
+        {
+            // Destroy the magnet prefab
+            Destroy(collision.gameObject);
+
+            // Find all coins and activate the magnet effect on each
+            CoinSpin[] coins = FindObjectsOfType<CoinSpin>();
+            foreach (CoinSpin coin in coins)
+            {
+                coin.ActivateMagnet(magnetDuration); // Use the magnetDuration set in PlayerController
+            }
         }
 
         // Apply force to the obstacle on collision
@@ -305,4 +322,26 @@ public class PlayerController : MonoBehaviour
         // Save high score when the player object is destroyed
         HighScoreManager.SaveHighScore(score);
     }
+
+    
+
+    // Method to attract coins within the magnet's range
+    /*void AttractCoins()
+    {
+        Collider[] coins = Physics.OverlapSphere(transform.position, magnetRange);
+        foreach (Collider coin in coins)
+        {
+            if (coin.CompareTag("Coin"))
+            {
+                Rigidbody coinRigidbody = coin.GetComponent<Rigidbody>();
+                if (coinRigidbody != null)
+                {
+                    Vector3 direction = (transform.position - coin.transform.position).normalized;
+                    coinRigidbody.AddForce(direction * magnetStrength * Time.deltaTime, ForceMode.Force); // Apply force using ForceMode
+                }
+            }
+        }
+    }*/
+
 }
+
