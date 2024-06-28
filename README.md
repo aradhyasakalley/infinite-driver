@@ -1,7 +1,5 @@
-github.com/aradhyasakalley/infinite-driver/assets/102210237/a70db7af-0eaa-4fa0-a7c9-f1874f296239
-github.com/aradhyasakalley/infinite-driver/assets/102210237/15c541ba-12bc-4b2e-a6c0-2d284f023b1f)
 
-
-
+![main](https://github.com/aradhyasakalley/infinite-driver/assets/102210237/521c72fe-91e4-4d8d-bbcd-b16028faef0f)
+![game_over](https://github.com/aradhyasakalley/infinite-driver/assets/102210237/e9b6c2d5-42dc-4440-88ff-ee1da869adc7)
 https://github.com/aradhyasakalley/infinite-driver/assets/102210237/124c7f3c-1e26-4735-a32c-42035adb2fe8
 
