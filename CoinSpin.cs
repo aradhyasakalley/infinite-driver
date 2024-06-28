@@ -5,7 +5,7 @@ using UnityEngine;
 public class CoinSpin : MonoBehaviour
 {
     public float rotationSpeed = 100f;
-    public float magnetStrength = 1000f; // Increased strength
+    public float magnetSpeed = 100f; // Adjusted magnet speed for testing, adjust as needed
 
     private bool isMagnetActive = false;
     private Transform playerTransform;
@@ -28,7 +28,6 @@ public class CoinSpin : MonoBehaviour
 
         if (isMagnetActive && playerTransform != null)
         {
-            Debug.Log("Magnet is active");
             AttractTowardsPlayer();
         }
     }
@@ -47,18 +46,7 @@ public class CoinSpin : MonoBehaviour
         if (playerTransform != null)
         {
             Vector3 direction = (playerTransform.position - transform.position).normalized;
-            Rigidbody rb = GetComponent<Rigidbody>();
-
-            if (rb != null)
-            {
-                Debug.Log("Applying force to the coin");
-                rb.AddForce(direction * magnetStrength * Time.deltaTime, ForceMode.Force);
-                Debug.Log("Force applied: " + (direction * magnetStrength * Time.deltaTime));
-            }
-            else
-            {
-                Debug.LogError("Rigidbody component is missing on the coin.");
-            }
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, magnetSpeed * Time.deltaTime);
         }
     }
 

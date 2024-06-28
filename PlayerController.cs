@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
 
     private HashSet<Collider> collidedObstacles = new HashSet<Collider>();
 
-    public float magnetDuration = 0.0f;
+    public float magnetDuration = 300.0f;
 
     void Start()
     {
@@ -184,11 +184,7 @@ public class PlayerController : MonoBehaviour
                     currentSpeed = 0;
                     StartCoroutine(WaitAndLoadScene(explosionDuration));
                 }
-
-                // Update UI for lives display
                 UpdateLifeUI();
-
-                // Instantiate explosion effect
                 Instantiate(explosionEffect, collision.contacts[0].point, Quaternion.identity);
             }
         }
@@ -198,24 +194,10 @@ public class PlayerController : MonoBehaviour
         {
             // Destroy the coin prefab
             Destroy(collision.gameObject);
-
-            // Increment score
             score += 5;
-
-            // Update score text
             UpdateScoreText();
         }
-        /*else if (collision.gameObject.CompareTag("Diamond"))
-        {
-            // Destroy the coin prefab
-            Destroy(collision.gameObject);
 
-            // Increment score
-            score = score * 2;
-
-            // Update score text
-            UpdateScoreText();
-        }*/
         if (collision.gameObject.CompareTag("Magnet"))
         {
             // Destroy the magnet prefab
@@ -229,7 +211,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Apply force to the obstacle on collision
         Rigidbody obstacleRigidbody = collision.gameObject.GetComponent<Rigidbody>();
         if (obstacleRigidbody != null)
         {
@@ -242,31 +223,10 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WaitAndLoadScene(float waitTime)
     {
-        // Wait for the specified duration
         yield return new WaitForSeconds(waitTime);
-
-        // Load the game over scene
         SceneManager.LoadSceneAsync(4); // Assuming scene index 4 is your game over scene
     }
 
-    // Method to change the vehicle type
-    void ChangeVehicleType(ChangeMesh.VehicleType newVehicleType)
-    {
-        if (vehicleController != null)
-        {
-            // Change the vehicle type in ChangeMesh script
-            vehicleController.ChangeVehicleType(newVehicleType);
-
-            // Update difficulty modifiers when vehicle type changes
-            SetDifficultyModifiers();
-        }
-        else
-        {
-            Debug.LogError("ChangeMesh script not found on the player's vehicle GameObject!");
-        }
-    }
-
-    // Method to update the score text in TMP
     void UpdateScoreText()
     {
         if (scoreText != null)
@@ -319,29 +279,6 @@ public class PlayerController : MonoBehaviour
 
     void OnDestroy()
     {
-        // Save high score when the player object is destroyed
         HighScoreManager.SaveHighScore(score);
     }
-
-    
-
-    // Method to attract coins within the magnet's range
-    /*void AttractCoins()
-    {
-        Collider[] coins = Physics.OverlapSphere(transform.position, magnetRange);
-        foreach (Collider coin in coins)
-        {
-            if (coin.CompareTag("Coin"))
-            {
-                Rigidbody coinRigidbody = coin.GetComponent<Rigidbody>();
-                if (coinRigidbody != null)
-                {
-                    Vector3 direction = (transform.position - coin.transform.position).normalized;
-                    coinRigidbody.AddForce(direction * magnetStrength * Time.deltaTime, ForceMode.Force); // Apply force using ForceMode
-                }
-            }
-        }
-    }*/
-
 }
-

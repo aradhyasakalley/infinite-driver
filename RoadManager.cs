@@ -22,7 +22,8 @@ public class RoadManager : MonoBehaviour
 
     private float[] obstacleXPositions = { -10.0f, 0.0f, 10.0f };
     private float[] barrelXPositions = { -6.0f, 0.0f, 6.0f };
-
+    private int cycleCount = 0;
+    private float laneCycleGap = 40.0f; 
     private ChangeMesh.VehicleType currentVehicleType;
 
     void Start()
@@ -101,62 +102,66 @@ public class RoadManager : MonoBehaviour
     {
         float obstacleZ = spawnZ - segmentLength;
 
+        // Check if the minimum distance between obstacles has been met
         if (obstacleZ - lastObstacleZ < obstacleMinDistance)
         {
             return;
         }
 
-        float spawnChance = Random.value;
-
-        // Adjust obstacle distance based on vehicle type
-        float obstacleDistanceModifier = 1.0f;
-        switch (currentVehicleType)
+        // Randomly choose two out of three lanes
+        int[] chosenLanes = new int[2];
+        chosenLanes[0] = Random.Range(0, 3);
+        do
         {
-            case ChangeMesh.VehicleType.Bus:
-                obstacleDistanceModifier = 3.0f;
-                break;
-            case ChangeMesh.VehicleType.Tank:
-                obstacleDistanceModifier = 2.0f;
-                break;
-            case ChangeMesh.VehicleType.Van:
-                obstacleDistanceModifier = 1.5f;
-                break;
-        }
+            chosenLanes[1] = Random.Range(0, 3);
+        } while (chosenLanes[1] == chosenLanes[0]);
 
-        float adjustedObstacleMinDistance = obstacleMinDistance * obstacleDistanceModifier;
-
-        if (obstacleZ - lastObstacleZ >= adjustedObstacleMinDistance)
+        // Spawn a line of coins and an obstacle on the chosen lanes
+        for (int i = 0; i < 2; i++)
         {
-            if (spawnChance < 0.6f)
+            int laneIndex = chosenLanes[i];
+            float spawnX;
+
+            if (i == 0)
             {
                 // Spawn a line of coins
-                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
+                spawnX = obstacleXPositions[laneIndex];
                 SpawnCoinLine(spawnX, obstacleZ);
             }
-            else if (spawnChance < 0.7f)
-            {
-                // Spawn a star
-                GameObject spawnPrefab = starPrefab;
-                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-                Instantiate(spawnPrefab, new Vector3(spawnX, 2.0f, obstacleZ), Quaternion.Euler(0, 90, 90));
-            }
-            else if (spawnChance < 0.8f)
+            else
             {
                 // Spawn an obstacle
+                spawnX = obstacleXPositions[laneIndex];
                 GameObject spawnPrefab = obstaclePrefab;
-                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
                 Instantiate(spawnPrefab, new Vector3(spawnX, 0.5f, obstacleZ), Quaternion.Euler(0, 180, 0));
             }
-            else if (spawnChance < 0.9f)
-            {
-                // Spawn a magnet
-                GameObject spawnPrefab = magnetPrefab;
-                float spawnX = obstacleXPositions[Random.Range(0, obstacleXPositions.Length)];
-                Instantiate(spawnPrefab, new Vector3(spawnX, 1.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
-            }
-            
+        }
 
-            lastObstacleZ = obstacleZ;
+        // Update lastObstacleZ to account for the gap between cycles
+        lastObstacleZ = obstacleZ + laneCycleGap;
+
+        // Track cycles for stars and magnets
+        cycleCount++;
+        Debug.Log("Cycle count : " + cycleCount);
+        // After every 2 cycles, spawn a star
+        if (cycleCount % 2 == 0)
+        {
+            int starLaneIndex = Random.Range(0, 3);
+            float spawnX = obstacleXPositions[starLaneIndex];
+            GameObject spawnPrefab = starPrefab;
+            Instantiate(spawnPrefab, new Vector3(spawnX, 2.0f, obstacleZ), Quaternion.Euler(0, 90, 90));
+        }
+
+        // After 6 cycles, spawn a magnet
+        if (cycleCount == 6)
+        {
+            int magnetLaneIndex = Random.Range(0, 3);
+            float spawnX = obstacleXPositions[magnetLaneIndex];
+            GameObject spawnPrefab = magnetPrefab;
+            Instantiate(spawnPrefab, new Vector3(spawnX, 1.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
+
+            // Reset cycle count after spawning magnet
+            cycleCount = 0;
         }
     }
 
@@ -168,15 +173,4 @@ public class RoadManager : MonoBehaviour
             Instantiate(coinPrefab, spawnPosition, Quaternion.Euler(0, 0, 90));
         }
     }
-
-
-    /*void SpawnCoinLine(float startX, float startZ)
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            Vector3 spawnPosition = new Vector3(startX, 1.0f, startZ + i * 1.0f);
-            Instantiate(coinPrefab, spawnPosition, Quaternion.identity);
-        }
-    }*/
-
 }
