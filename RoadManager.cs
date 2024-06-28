@@ -98,6 +98,15 @@ public class RoadManager : MonoBehaviour
         roadSegments.RemoveAt(0);
     }
 
+    void SpawnCoinLine(float startX, float startZ)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 spawnPosition = new Vector3(startX, 1.0f, startZ + i * 3.0f);
+            Instantiate(coinPrefab, spawnPosition, Quaternion.Euler(0, 0, 90));
+        }
+    }
+
     void SpawnObstacles()
     {
         float obstacleZ = spawnZ - segmentLength;
@@ -137,40 +146,31 @@ public class RoadManager : MonoBehaviour
             }
         }
 
-        // Update lastObstacleZ to account for the gap between cycles
         lastObstacleZ = obstacleZ + laneCycleGap;
-
-        // Track cycles for stars and magnets
         cycleCount++;
-        Debug.Log("Cycle count : " + cycleCount);
-        // After every 2 cycles, spawn a star
-        if (cycleCount % 2 == 0)
+        //Debug.Log("Cycle count : " + cycleCount);
+        
+        
+        // After every 4 cycles spawn a star
+        if (cycleCount % 4 == 0)
         {
-            int starLaneIndex = Random.Range(0, 3);
+            int starLaneIndex = 3 - chosenLanes[0] - chosenLanes[1];
             float spawnX = obstacleXPositions[starLaneIndex];
             GameObject spawnPrefab = starPrefab;
             Instantiate(spawnPrefab, new Vector3(spawnX, 2.0f, obstacleZ), Quaternion.Euler(0, 90, 90));
         }
 
         // After 6 cycles, spawn a magnet
-        if (cycleCount == 6)
+        if (cycleCount % 6 == 0 )
         {
-            int magnetLaneIndex = Random.Range(0, 3);
+           
+            int magnetLaneIndex = 3 - chosenLanes[0] - chosenLanes[1];
             float spawnX = obstacleXPositions[magnetLaneIndex];
             GameObject spawnPrefab = magnetPrefab;
             Instantiate(spawnPrefab, new Vector3(spawnX, 1.5f, obstacleZ), Quaternion.Euler(0, 90, 0));
 
             // Reset cycle count after spawning magnet
             cycleCount = 0;
-        }
-    }
-
-    void SpawnCoinLine(float startX, float startZ)
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            Vector3 spawnPosition = new Vector3(startX, 1.0f, startZ + i * 3.0f);
-            Instantiate(coinPrefab, spawnPosition, Quaternion.Euler(0, 0, 90));
         }
     }
 }
